@@ -1,26 +1,26 @@
 # Error handlers
-. sh-lib/errors.sh
+. jm-sh/errors.sh
 
 # Setup
-. sh-lib/setup.sh
+. jm-sh/setup.sh
 
 # Version levels
-. sh-lib/versions.sh
+. jm-sh/versions.sh
 
 # Prompt for options
-#. sh-lib/prompt.sh
+#. jm-sh/prompt.sh
 
 # Parse command-line options
-. sh-lib/opts.sh
+. jm-sh/opts.sh
 
 # Functions for build
-. sh-lib/builder.sh
+. jm-sh/builder.sh
 
 # Functions for release
-. sh-lib/releases.sh
+. jm-sh/releases.sh
 
 # Functions for repo management
-. sh-lib/repo.sh
+. jm-sh/repo.sh
 
 if [ $RELEASE -gt 1 ]; then
   DOORKEY=$(cat "${HOME}/bin/doorkey.txt")
@@ -96,3 +96,4 @@ case $RELEASE in
         repo-finish 0 "Released as FINAL (uploaded to GitHub, full wax)"
         ;;
 esac
+

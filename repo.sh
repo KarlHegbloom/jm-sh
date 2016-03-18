@@ -29,7 +29,7 @@ function touch-log () {
 function refresh-style-modules () {
     trap booboo ERR
     git checkout "${BRANCH}" >> "${LOG_FILE}" 2<&1
-    git submodule foreach git pull origin master >> "${LOG_FILE}" 2<&1
+    git submodule update --remote --recursive >> "${LOG_FILE}" 2<&1
     trap - ERR
 }
 
