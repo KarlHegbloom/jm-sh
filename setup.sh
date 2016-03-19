@@ -2,6 +2,9 @@ VERSION=""
 PATCH=$(cat version/patch.txt)
 BETA=$(cat version/beta.txt)
 
+API_KEY=$(cat ../api_key.txt)
+API_SECRET=$(cat ../api_secret.txt)
+
 SCRIPT_DIR=$(pwd)
 
 if [ ! -d "releases" ]; then

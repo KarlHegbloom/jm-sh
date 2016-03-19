@@ -6,35 +6,45 @@ function create-github-release () {
     else
         RELEASE_TAG="v${VERSION_STUB}"
         RELEASE_NAME="v${VERSION_STUB} final"
-        RELEASE_BODY="To install the plugin, click on the &ldquo;${CLIENT}-v${VERSION_STUB}.xpi&rdquo; file below while viewing this page in Firefox. This release will update automatically."
+        RELEASE_BODY="To install the plugin, click on the &ldquo;${CLIENT}-v${VERSION_STUB}.xpi&rdquo; file below while viewing this page in Firefox. This plugin is signed for use in Firefox and will update automatically."
     fi
     UPLOAD_URL=$(curl --fail --silent \
         --user "${DOORKEY}" \
         "https://api.github.com/repos/Juris-M/${FORK}/releases/tags/${RELEASE_TAG}" \
         | ~/bin/jq '.upload_url')
-    echo "FIRST ${UPLOAD_URL}"
+    #echo "FIRST ${UPLOAD_URL}"
     if [ "$UPLOAD_URL" == "" ]; then
         # Create the release
         DAT=$(printf '{"tag_name": "%s", "name": "%s", "body":"%s", "draft": false, "prerelease": %s}' "$RELEASE_TAG" "$RELEASE_NAME" "$RELEASE_BODY" "$IS_BETA")
+        echo "${DAT}"
         UPLOAD_URL=$(curl --fail --silent \
             --user "${DOORKEY}" \
             --data "${DAT}" \
             "https://api.github.com/repos/Juris-M/${FORK}/releases" \
             | ~/bin/jq '.upload_url')
     fi
-    echo "SECOND ${UPLOAD_URL}"
+    #echo "SECOND ${UPLOAD_URL}"
     UPLOAD_URL=$(echo $UPLOAD_URL | sed -e "s/\"\(.*\){.*/\1/")
-    echo "THIRD ${UPLOAD_URL}"
+    #echo "THIRD ${UPLOAD_URL}"
+    if [ "${UPLOAD_URL}" == "" ]; then
+        echo "Fatal: no upload URL"
+        echo "Aborting"
+        exit 0
+    fi
 }
 
 function add-xpi-to-github-release () {
+    # Sign XPI and move into place
+    jpm sign --api-key=${API_KEY} --api-secret=${API_SECRET} --xpi="releases/${VERSION_STUB}/${CLIENT}-v${VERSION}.xpi"
+    mv "${SIGNED_STUB}${VERSION}-fx.xpi" "releases/${VERSION_STUB}/${CLIENT}-v${VERSION}-fx.xpi"
+
     # Upload "asset"
     NAME=$(curl --fail --silent --show-error \
         --user "${DOORKEY}" \
         -H "Accept: application/vnd.github.manifold-preview" \
         -H "Content-Type: application/x-xpinstall" \
-        --data-binary "@${RELEASE_DIR}/${CLIENT}-v${VERSION}.xpi" \
-        "${UPLOAD_URL}?name=${CLIENT}-v${VERSION}.xpi" \
+        --data-binary "@${RELEASE_DIR}/${CLIENT}-v${VERSION}-fx.xpi" \
+        "${UPLOAD_URL}?name=${CLIENT}-v${VERSION}-fx.xpi" \
             | ~/bin/jq '.name')
     echo "Uploaded ${NAME}"
 }
