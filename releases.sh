@@ -2,7 +2,7 @@ function create-github-release () {
     if [ "$BETA" -gt "0" ]; then
         RELEASE_TAG="v${VERSION_STUB}beta"
         RELEASE_NAME="Beta pre-release of v${VERSION_STUB}"
-        RELEASE_BODY="Beta pre-releases do not update automatically, and may be removed after the release is finalized"
+        RELEASE_BODY="To install, click on the *.xpi link for the beta version you wish to install. Beta pre-releases will update automatically when the final release appears."
     else
         RELEASE_TAG="v${VERSION_STUB}"
         RELEASE_NAME="v${VERSION_STUB} final"
