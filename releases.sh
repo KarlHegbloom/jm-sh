@@ -65,7 +65,7 @@ function publish-update () {
     # Slip the update manifest over to the gh-pages branch, commit, and push
     cp update-TEMPLATE.rdf update-TRANSFER.rdf
     git checkout gh-pages >> "${LOG_FILE}" 2<&1
-    if [ ! -f update.rdf ]; then
+    if [ $(git ls-files | grep -c update.rdf) -eq 0 ]; then
         echo "XXX" > update.rdf
         git add update.rdf
     fi
