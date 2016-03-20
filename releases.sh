@@ -51,12 +51,9 @@ function add-xpi-to-github-release () {
 
 function publish-update () {
     # Prepare the update manifest
-    cp update-TEMPLATE.rdf update-TRANSFER.rdf
-    cat update-TRANSFER.rdf | sed -e "s/\(<em:version>\).*\(<\/em:version>\)/\\1${VERSION_STUB}\\2/" > frag.txt
-    mv frag.txt update-TRANSFER.rdf
-    cat update-TRANSFER.rdf | sed -e "s/\(<em:updateURL>.*download\/\).*\(<\/em:updateURL>\)/\\1v${VERSION_STUB}\/${CLIENT}-v${VERSION_STUB}-fx.xpi\\2/" > frag.txt
-    mv frag.txt update-TRANSFER.rdf
-    #~/src/mccoy/mccoy
+    sed -si "s/\(<em:version>\).*\(<\/em:version>\)/\\1${VERSION_STUB}\\2/" update-TEMPLATE.rdf
+    sed -si "s/\(<em:updateLink>.*download\/\).*\(<\/em:updateLink>\)/\\1v${VERSION_STUB}\/${CLIENT}-v${VERSION_STUB}-fx.xpi\\2/" update-TRANSFER.rdf
+    git commit -m "Refresh update-TEMPLATE.rdf" update-TEMPLATE.rdf >> "${LOG_FILE}" 2<&1
     echo -n "Proceed? (y/n): "
     read CHOICE
     if [ "${CHOICE}" == "y" ]; then
@@ -66,7 +63,7 @@ function publish-update () {
         exit 1
     fi
     # Slip the update manifest over to the gh-pages branch, commit, and push
-    cp update-TRANSFER.rdf update-TEMPLATE.rdf
+    cp update-TEMPLATE.rdf update-TRANSFER.rdf
     git checkout gh-pages >> "${LOG_FILE}" 2<&1
     if [ ! -f update.rdf ]; then
         echo "XXX" > update.rdf
@@ -74,7 +71,7 @@ function publish-update () {
     fi
     mv update-TRANSFER.rdf update.rdf >> "${LOG_FILE}" 2<&1
     git commit -m "Refresh update.rdf" update.rdf >> "${LOG_FILE}" 2<&1
-    git push origin gh-pages >> "${LOG_FILE}" 2<&1
+    git push >> "${LOG_FILE}" 2<&1
     echo "Refreshed update.rdf on project site"
     git checkout "${BRANCH}" >> "${LOG_FILE}" 2<&1
 }
