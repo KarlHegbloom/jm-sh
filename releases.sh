@@ -52,7 +52,7 @@ function add-xpi-to-github-release () {
 function publish-update () {
     # Prepare the update manifest
     sed -si "s/\(<em:version>\).*\(<\/em:version>\)/\\1${VERSION_STUB}\\2/" update-TEMPLATE.rdf
-    sed -si "s/\(<em:updateLink>.*download\/\).*\(<\/em:updateLink>\)/\\1v${VERSION_STUB}\/${CLIENT}-v${VERSION_STUB}-fx.xpi\\2/" update-TRANSFER.rdf
+    sed -si "s/\(<em:updateLink>.*download\/\).*\(<\/em:updateLink>\)/\\1v${VERSION_STUB}\/${CLIENT}-v${VERSION_STUB}-fx.xpi\\2/" update-TEMPLATE.rdf
     git commit -m "Refresh update-TEMPLATE.rdf" update-TEMPLATE.rdf >> "${LOG_FILE}" 2<&1
     echo -n "Proceed? (y/n): "
     read CHOICE
