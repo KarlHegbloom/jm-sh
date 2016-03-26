@@ -7,8 +7,8 @@
 # Version levels
 . jm-sh/versions.sh
 
-# Prompt for options
-#. jm-sh/prompt.sh
+# Update about.xul etc etc
+. jm-sh/fixcontentmaybe.sh
 
 # Parse command-line options
 . jm-sh/opts.sh
