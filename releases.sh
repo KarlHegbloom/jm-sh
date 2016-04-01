@@ -8,7 +8,7 @@ function create-github-release () {
         RELEASE_NAME="v${VERSION_STUB} final"
         RELEASE_BODY="To install the plugin, click on the &ldquo;${CLIENT}-v${VERSION_STUB}.xpi&rdquo; file below while viewing this page in Firefox. This plugin is signed for use in Firefox and will update automatically."
     fi
-    UPLOAD_URL=$(curl --fail --silent \
+    UPLOAD_URL=$(curl -k --fail --silent \
         --user "${DOORKEY}" \
         "https://api.github.com/repos/Juris-M/${FORK}/releases/tags/${RELEASE_TAG}" \
         | ~/bin/jq '.upload_url')
@@ -17,7 +17,7 @@ function create-github-release () {
         # Create the release
         DAT=$(printf '{"tag_name": "%s", "name": "%s", "body":"%s", "draft": false, "prerelease": %s}' "$RELEASE_TAG" "$RELEASE_NAME" "$RELEASE_BODY" "$IS_BETA")
         echo "${DAT}"
-        UPLOAD_URL=$(curl --fail --silent \
+        UPLOAD_URL=$(curl -k --fail --silent \
             --user "${DOORKEY}" \
             --data "${DAT}" \
             "https://api.github.com/repos/Juris-M/${FORK}/releases" \
@@ -39,7 +39,7 @@ function add-xpi-to-github-release () {
     mv "${SIGNED_STUB}${VERSION}-fx.xpi" "releases/${VERSION_STUB}/${CLIENT}-v${VERSION}-fx.xpi"
 
     # Upload "asset"
-    NAME=$(curl --fail --silent --show-error \
+    NAME=$(curl -k --fail --silent --show-error \
         --user "${DOORKEY}" \
         -H "Accept: application/vnd.github.manifold-preview" \
         -H "Content-Type: application/x-xpinstall" \
