@@ -29,7 +29,9 @@ function touch-log () {
 function refresh-style-modules () {
     trap booboo ERR
     git checkout "${BRANCH}" >> "${LOG_FILE}" 2<&1
-    git submodule update --remote --recursive >> "${LOG_FILE}" 2<&1
+    if [ "${RELEASE}" != "1" ]; then
+      git submodule update --remote --recursive >> "${LOG_FILE}" 2<&1
+    fi
     trap - ERR
 }
 
