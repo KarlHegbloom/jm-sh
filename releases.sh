@@ -10,7 +10,7 @@ function create-github-release () {
     fi
     UPLOAD_URL=$(curl -k --fail --silent \
         --user "${DOORKEY}" \
-        "https://api.github.com/repos/Juris-M/${FORK}/releases/tags/${RELEASE_TAG}" \
+        "https://api.github.com/repos/KarlHegbloom/${FORK}/releases/tags/${RELEASE_TAG}" \
         | ~/bin/jq '.upload_url')
     #echo "FIRST ${UPLOAD_URL}"
     if [ "$UPLOAD_URL" == "" ]; then
@@ -52,7 +52,7 @@ function add-xpi-to-github-release () {
 function publish-update () {
     # Prepare the update manifest
     sed -si "s/\(<em:version>\).*\(<\/em:version>\)/\\1${VERSION_STUB}\\2/" update-TEMPLATE.rdf
-    sed -si "s/\(<em:updateLink>.*download\/\).*\(<\/em:updateLink>\)/\\1v${VERSION_STUB}\/${CLIENT}-v${VERSION_STUB}-fx.xpi\\2/" update-TEMPLATE.rdf
+    sed -si "s/\(<em:updateLink>.*download\/\).*\(<\/em:updateLink>\)/\\1v${VERSION_STUB}\/${CLIENT}-v${VERSION}-fx.xpi\\2/" update-TEMPLATE.rdf
     git commit -m "Refresh update-TEMPLATE.rdf" update-TEMPLATE.rdf >> "${LOG_FILE}" 2<&1
     echo -n "Proceed? (y/n): "
     read CHOICE
@@ -64,14 +64,14 @@ function publish-update () {
     fi
     # Slip the update manifest over to the gh-pages branch, commit, and push
     cp update-TEMPLATE.rdf update-TRANSFER.rdf
-    git checkout gh-pages >> "${LOG_FILE}" 2<&1
-    if [ $(git ls-files | grep -c update.rdf) -eq 0 ]; then
-        echo "XXX" > update.rdf
-        git add update.rdf
-    fi
+    #git checkout gh-pages >> "${LOG_FILE}" 2<&1
+    # if [ $(git ls-files | grep -c update.rdf) -eq 0 ]; then
+    #     echo "XXX" > update.rdf
+    #     git add update.rdf
+    # fi
     mv update-TRANSFER.rdf update.rdf >> "${LOG_FILE}" 2<&1
     git commit -m "Refresh update.rdf" update.rdf >> "${LOG_FILE}" 2<&1
     git push >> "${LOG_FILE}" 2<&1
     echo "Refreshed update.rdf on project site"
-    git checkout "${BRANCH}" >> "${LOG_FILE}" 2<&1
+    # git checkout "${BRANCH}" >> "${LOG_FILE}" 2<&1
 }
