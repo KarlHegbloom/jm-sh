@@ -24,7 +24,7 @@ function create-github-release () {
             | ~/bin/jq '.upload_url')
     fi
     #echo "SECOND ${UPLOAD_URL}"
-    UPLOAD_URL=$(echo $UPLOAD_URL | sed -e "s/\"\(.*\){.*/\1/")
+    UPLOAD_URL=$(echo $UPLOAD_URL | $GSED -e "s/\"\(.*\){.*/\1/")
     #echo "THIRD ${UPLOAD_URL}"
     if [ "${UPLOAD_URL}" == "" ]; then
         echo "Fatal: no upload URL"
@@ -51,8 +51,8 @@ function add-xpi-to-github-release () {
 
 function publish-update () {
     # Prepare the update manifest
-    sed -si "s/\(<em:version>\).*\(<\/em:version>\)/\\1${VERSION_STUB}\\2/" update-TEMPLATE.rdf
-    sed -si "s/\(<em:updateLink>.*download\/\).*\(<\/em:updateLink>\)/\\1v${VERSION_STUB}\/${CLIENT}-v${VERSION_STUB}-fx.xpi\\2/" update-TEMPLATE.rdf
+    $GSED -si "s/\(<em:version>\).*\(<\/em:version>\)/\\1${VERSION_STUB}\\2/" update-TEMPLATE.rdf
+    $GSED -si "s/\(<em:updateLink>.*download\/\).*\(<\/em:updateLink>\)/\\1v${VERSION_STUB}\/${CLIENT}-v${VERSION_STUB}-fx.xpi\\2/" update-TEMPLATE.rdf
     git commit -m "Refresh update-TEMPLATE.rdf" update-TEMPLATE.rdf >> "${LOG_FILE}" 2<&1
     echo -n "Proceed? (y/n): "
     read CHOICE
