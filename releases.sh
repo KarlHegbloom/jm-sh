@@ -38,11 +38,15 @@ function add-xpi-to-github-release () {
     jpm sign --api-key=${API_KEY} --api-secret=${API_SECRET} --xpi="releases/${VERSION_STUB}/${CLIENT}-v${VERSION}.xpi"
     mv "${SIGNED_STUB}${VERSION}-fx.xpi" "releases/${VERSION_STUB}/${CLIENT}-v${VERSION}-fx.xpi"
 
+    # Get content-length of downloaded file
+    SIZE=$(stat -c %s "${RELEASE_DIR}/${CLIENT}-v${VERSION}-fx.xpi")
+
     # Upload "asset"
     NAME=$(curl -k --fail --silent --show-error \
         --user "${DOORKEY}" \
         -H "Accept: application/vnd.github.manifold-preview" \
         -H "Content-Type: application/x-xpinstall" \
+	-H "Content-Length: ${SIZE}" \
         --data-binary "@${RELEASE_DIR}/${CLIENT}-v${VERSION}-fx.xpi" \
         "${UPLOAD_URL}?name=${CLIENT}-v${VERSION}-fx.xpi" \
             | ~/bin/jq '.name')
