@@ -1,4 +1,5 @@
 
+set +e
 gsed --version > /dev/null 2<&1
 if [ $? -gt 0 ]; then
     GSED="sed"
@@ -13,6 +14,7 @@ if [ $? -gt 0 ]; then
 else
     GFIND="gfind"
 fi
+set -e
 
 
 # Error handlers
