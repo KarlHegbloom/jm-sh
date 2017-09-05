@@ -1,3 +1,22 @@
+
+set +e
+gsed --version > /dev/null 2<&1
+if [ $? -gt 0 ]; then
+    GSED="sed"
+else
+    GSED="gsed"
+fi
+
+
+gfind --version > /dev/null 2<&1
+if [ $? -gt 0 ]; then
+    GFIND="find"
+else
+    GFIND="gfind"
+fi
+set -e
+
+
 # Error handlers
 . jm-sh/errors.sh
 

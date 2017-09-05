@@ -37,8 +37,8 @@ function refresh-style-modules () {
 
 function repo-finish () {
     echo "$2"
-    date | sed -e "s/^/  /"
-    ls -l "releases/${VERSION_STUB}/${CLIENT}-v${VERSION}.xpi" | sed -e "s/^/  /"
+    date | $GSED -e "s/^/  /"
+    ls -l "releases/${VERSION_STUB}/${CLIENT}-v${VERSION}.xpi" | $GSED -e "s/^/  /"
     if [ $1 -eq 1 ]; then
         git checkout install.rdf
     fi
