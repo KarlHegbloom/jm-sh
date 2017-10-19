@@ -13,6 +13,7 @@ function compose-version-string () {
     RELEASE_DIR="${SCRIPT_DIR}/releases/${VERSION_STUB}"
     LOG_FILE="${RELEASE_DIR}/${CLIENT}-v${VERSION}.log"
     XPI_FILE="${RELEASE_DIR}/${CLIENT}-v${VERSION}.xpi"
+    XPI_FX_FILE="${RELEASE_DIR}/${CLIENT}-v${VERSION}-fx.xpi"
 }
 
 function save-patch-level () {

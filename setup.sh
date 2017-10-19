@@ -21,4 +21,3 @@ function check-for-release-dir () {
         #exit 1
     fi
 }
-

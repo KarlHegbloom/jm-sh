@@ -10,8 +10,8 @@ function create-github-release () {
     fi
     UPLOAD_URL=$(curl -k --fail --silent \
         --user "${DOORKEY}" \
-        "https://api.github.com/repos/KarlHegbloom/${FORK}/releases/tags/${RELEASE_TAG}" \
-        | ~/bin/jq '.upload_url')
+        "https://api.github.com/repos/${GITHUBUSER}/${FORK}/releases/tags/${RELEASE_TAG}" \
+                     | ~/bin/jq '.upload_url')
     #echo "FIRST ${UPLOAD_URL}"
     if [ "$UPLOAD_URL" == "" ]; then
         # Create the release
@@ -20,8 +20,8 @@ function create-github-release () {
         UPLOAD_URL=$(curl -k --fail --silent \
             --user "${DOORKEY}" \
             --data "${DAT}" \
-            "https://api.github.com/repos/Juris-M/${FORK}/releases" \
-            | ~/bin/jq '.upload_url')
+            "https://api.github.com/repos/${GITHUBUSER}/${FORK}/releases" \
+                         | ~/bin/jq '.upload_url')
     fi
     #echo "SECOND ${UPLOAD_URL}"
     UPLOAD_URL=$(echo $UPLOAD_URL | $GSED -e "s/\"\(.*\){.*/\1/")
@@ -35,11 +35,11 @@ function create-github-release () {
 
 function add-xpi-to-github-release () {
     # Sign XPI and move into place
-    jpm sign --api-key=${API_KEY} --api-secret=${API_SECRET} --xpi="releases/${VERSION_STUB}/${CLIENT}-v${VERSION}.xpi"
-    mv "${SIGNED_STUB}${VERSION}-fx.xpi" "releases/${VERSION_STUB}/${CLIENT}-v${VERSION}-fx.xpi"
+    jpm sign --api-key=${API_KEY} --api-secret=${API_SECRET} --xpi="${XPI_FILE}"
+    mv "${SIGNED_STUB}${VERSION}-fx.xpi" "${XPI_FX_FILE}"
 
     # Get content-length of downloaded file
-    SIZE=$(stat -c %s "${RELEASE_DIR}/${CLIENT}-v${VERSION}-fx.xpi")
+    SIZE=$(stat -c %s "${XPI_FX_FILE}")
 
     # Upload "asset"
     NAME=$(curl -k --fail --silent --show-error \
@@ -47,16 +47,16 @@ function add-xpi-to-github-release () {
         -H "Accept: application/vnd.github.manifold-preview" \
         -H "Content-Type: application/x-xpinstall" \
 	-H "Content-Length: ${SIZE}" \
-        --data-binary "@${RELEASE_DIR}/${CLIENT}-v${VERSION}-fx.xpi" \
-        "${UPLOAD_URL}?name=${CLIENT}-v${VERSION}-fx.xpi" \
-            | ~/bin/jq '.name')
+        --data-binary "@${XPI_FX_FILE}" \
+        "${UPLOAD_URL}?name=$(basename ${XPI_FX_FILE})" \
+               | ~/bin/jq '.name')
     echo "Uploaded ${NAME}"
 }
 
 function publish-update () {
     # Prepare the update manifest
-    $GSED -si "s/\(<em:version>\).*\(<\/em:version>\)/\\1${VERSION_STUB}\\2/" update-TEMPLATE.rdf
-    $GSED -si "s/\(<em:updateLink>.*download\/\).*\(<\/em:updateLink>\)/\\1v${VERSION_STUB}\/${CLIENT}-v${VERSION_STUB}-fx.xpi\\2/" update-TEMPLATE.rdf
+    $GSED -si "s/\(<em:version>\).*\(<\/em:version>\)/\\1${VERSION}\\2/" update-TEMPLATE.rdf
+    $GSED -si "s/\(<em:updateLink>.*download\/\).*\(<\/em:updateLink>\)/\\1v${VERSION}\/${CLIENT}-v${VERSION}-fx.xpi\\2/" update-TEMPLATE.rdf
     git commit -m "Refresh update-TEMPLATE.rdf" update-TEMPLATE.rdf >> "${LOG_FILE}" 2<&1
     echo -n "Proceed? (y/n): "
     read CHOICE
