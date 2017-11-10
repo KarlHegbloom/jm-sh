@@ -2,11 +2,11 @@ function create-github-release () {
     if [ "$BETA" -gt "0" ]; then
         RELEASE_TAG="v${VERSION_STUB}beta"
         RELEASE_NAME="Beta pre-release of v${VERSION_STUB}"
-        RELEASE_BODY="To install, click on the *.xpi link for the beta version you wish to install. Beta pre-releases will update automatically when the final release appears."
+        RELEASE_BODY="To install, download the xpi for the beta version you wish to install, then use the Addons interface to install the xpi file into Juris-M or Zotero standalone. This is NOT a Firefox plugin. Beta pre-releases should update automatically when the final release appears."
     else
         RELEASE_TAG="v${VERSION_STUB}"
         RELEASE_NAME="v${VERSION_STUB} final"
-        RELEASE_BODY="To install the plugin, click on the &ldquo;${CLIENT}-v${VERSION_STUB}.xpi&rdquo; file below while viewing this page in Firefox. This plugin is signed for use in Firefox and will update automatically."
+        RELEASE_BODY="To install the plugin, download the xpi file below while viewing this page in a web browser. Then, use the Addons interface to install the xpi file into Juris-M or Zotero standalone. This is NOT a Firefox plugin. This plugin should update automatically."
     fi
     UPLOAD_URL=$(curl -k --fail --silent \
         --user "${DOORKEY}" \
@@ -36,7 +36,7 @@ function create-github-release () {
 function add-xpi-to-github-release () {
     # Sign XPI and move into place
     jpm sign --api-key=${API_KEY} --api-secret=${API_SECRET} --xpi="${XPI_FILE}"
-    mv "${SIGNED_STUB}${VERSION}-fx.xpi" "${XPI_FX_FILE}"
+    mv "${SIGNED_STUB}-v${VERSION}-fx.xpi" "${XPI_FX_FILE}"
 
     # Get content-length of downloaded file
     SIZE=$(stat -c %s "${XPI_FX_FILE}")
@@ -55,8 +55,8 @@ function add-xpi-to-github-release () {
 
 function publish-update () {
     # Prepare the update manifest
-    $GSED -si "s/\(<em:version>\).*\(<\/em:version>\)/\\1${VERSION}\\2/" update-TEMPLATE.rdf
-    $GSED -si "s/\(<em:updateLink>.*download\/\).*\(<\/em:updateLink>\)/\\1v${VERSION}\/${CLIENT}-v${VERSION}-fx.xpi\\2/" update-TEMPLATE.rdf
+    $GSED -si "s,\(<em:version>\).*\(<\/em:version>\),\\1${VERSION}\\2," update-TEMPLATE.rdf
+    $GSED -si "s,\(<em:updateLink>.*download\/\).*\(<\/em:updateLink>\),\\1v${VERSION}/${CLIENT}-v${VERSION}-fx.xpi\\2," update-TEMPLATE.rdf
     git commit -m "Refresh update-TEMPLATE.rdf" update-TEMPLATE.rdf >> "${LOG_FILE}" 2<&1
     echo -n "Proceed? (y/n): "
     read CHOICE
@@ -68,14 +68,15 @@ function publish-update () {
     fi
     # Slip the update manifest over to the gh-pages branch, commit, and push
     cp update-TEMPLATE.rdf update-TRANSFER.rdf
-    #git checkout gh-pages >> "${LOG_FILE}" 2<&1
-    # if [ $(git ls-files | grep -c update.rdf) -eq 0 ]; then
-    #     echo "XXX" > update.rdf
-    #     git add update.rdf
-    # fi
+    git checkout gh-pages >> "${LOG_FILE}" 2<&1
+    if [ $(git ls-files | grep -c update.rdf) -eq 0 ]; then
+        echo "XXX" > update.rdf
+        git add update.rdf
+    fi
     mv update-TRANSFER.rdf update.rdf >> "${LOG_FILE}" 2<&1
+    git add update.rdf >> "${LOG_FILE}" 2<&1
     git commit -m "Refresh update.rdf" update.rdf >> "${LOG_FILE}" 2<&1
     git push >> "${LOG_FILE}" 2<&1
     echo "Refreshed update.rdf on project site"
-    # git checkout "${BRANCH}" >> "${LOG_FILE}" 2<&1
+    git checkout "${BRANCH}" >> "${LOG_FILE}" 2<&1
 }
