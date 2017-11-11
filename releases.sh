@@ -36,7 +36,7 @@ function create-github-release () {
 function add-xpi-to-github-release () {
     # Sign XPI and move into place
     jpm sign --api-key=${API_KEY} --api-secret=${API_SECRET} --xpi="${XPI_FILE}"
-    mv "${SIGNED_STUB}-v${VERSION}-fx.xpi" "${XPI_FX_FILE}"
+    mv "${XPI_SIGNED_FILE}" "${XPI_FX_FILE}"
 
     # Get content-length of downloaded file
     SIZE=$(stat -c %s "${XPI_FX_FILE}")
